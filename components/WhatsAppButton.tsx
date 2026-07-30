@@ -28,7 +28,7 @@ export function WhatsAppButtonIcon() {
       href={WA_URL}
       target="_blank"
       rel="noopener noreferrer"
-      className="text-green-500 p-1"
+      className="w-9 h-9 rounded-full bg-green-500 flex items-center justify-center text-white shadow-sm active:scale-95 transition-transform flex-shrink-0"
       aria-label="Chat on WhatsApp"
     >
       <Icon />

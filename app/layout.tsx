@@ -4,7 +4,7 @@ import { CartProvider } from '@/components/CartProvider'
 import BottomNav from '@/components/BottomNav'
 
 export const metadata: Metadata = {
-  title: 'Shringar Nepal',
+  title: 'Sajdhaj Nepal',
   description: 'Sarees, jewelry & accessories — delivered across Nepal',
 }
 

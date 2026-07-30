@@ -2,7 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import ProductCard from '@/components/ProductCard'
-import { WhatsAppButtonFull } from '@/components/WhatsAppButton'
+import { WhatsAppButtonIcon } from '@/components/WhatsAppButton'
 import type { Category, Product } from '@/types/database'
 
 export const dynamic = 'force-dynamic'
@@ -22,9 +22,9 @@ export default async function HomePage() {
     <div>
       <header className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100 sticky top-0 z-10">
         <span className="text-lg font-semibold text-brand-700">
-          शृंगार <span className="text-brand-400">Nepal</span>
+          सजधज <span className="text-brand-400">Nepal</span>
         </span>
-        <WhatsAppButtonFull />
+        <WhatsAppButtonIcon />
       </header>
 
       <div className="mx-4 mt-4 rounded-2xl bg-gradient-to-br from-brand-900 to-brand-700 p-5 flex justify-between items-end overflow-hidden min-h-36">
