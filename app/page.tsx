@@ -1,65 +1,99 @@
-import Image from "next/image";
+import Link from 'next/link'
+import Image from 'next/image'
+import { supabase } from '@/lib/supabase'
+import ProductCard from '@/components/ProductCard'
+import { WhatsAppButtonFull } from '@/components/WhatsAppButton'
+import type { Category, Product } from '@/types/database'
 
-export default function Home() {
+export const dynamic = 'force-dynamic'
+
+async function getData() {
+  const [{ data: categories }, { data: products }] = await Promise.all([
+    supabase.from('categories').select('*').order('sort_order'),
+    supabase.from('products').select('*, product_images(*)').eq('is_featured', true).eq('is_active', true).limit(6),
+  ])
+  return { categories: categories ?? [], products: products ?? [] }
+}
+
+export default async function HomePage() {
+  const { categories, products } = await getData()
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div>
+      <header className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100 sticky top-0 z-10">
+        <span className="text-lg font-semibold text-brand-700">
+          शृंगार <span className="text-brand-400">Nepal</span>
+        </span>
+        <WhatsAppButtonFull />
+      </header>
+
+      <div className="mx-4 mt-4 rounded-2xl bg-gradient-to-br from-brand-900 to-brand-700 p-5 flex justify-between items-end overflow-hidden min-h-36">
+        <div>
+          <span className="inline-block text-[11px] text-brand-100 border border-brand-600 rounded-full px-3 py-0.5 mb-2">
+            ✦ Teej collection 2025
+          </span>
+          <h1 className="text-xl font-semibold text-white leading-tight mb-3">
+            Celebrate in<br />style
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+          <Link href="/category" className="inline-flex items-center gap-1 bg-gold-400 text-gold-800 text-xs font-semibold px-4 py-2 rounded-full">
+            Shop now →
+          </Link>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <span className="text-6xl mb-1 select-none">🥻</span>
+      </div>
+
+      <div className="flex gap-2 px-4 mt-3 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden">
+        {['🚚 Free delivery above NPR 2,000', '✅ 100% authentic', '🔄 7-day returns', '🇳🇵 Nepali support'].map(chip => (
+          <span key={chip} className="flex-shrink-0 text-[11px] text-gray-600 bg-gray-50 border border-gray-100 rounded-full px-3 py-1.5 whitespace-nowrap">
+            {chip}
+          </span>
+        ))}
+      </div>
+
+      <div className="mt-5 px-4">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-semibold text-gray-900">Categories</h2>
+          <Link href="/category" className="text-xs text-brand-600">See all</Link>
         </div>
-      </main>
+        <div className="flex gap-3 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden">
+          {(categories as Category[]).map(cat => (
+            <Link key={cat.id} href={`/category/${cat.slug}`} className="flex-shrink-0 flex flex-col items-center gap-1.5">
+              <div className="w-14 h-14 rounded-full bg-brand-50 overflow-hidden flex items-center justify-center text-2xl border-2 border-transparent relative">
+                {cat.image_url
+                  ? <Image src={cat.image_url} alt={cat.name} fill className="object-cover" />
+                  : cat.icon}
+              </div>
+              <span className="text-[11px] text-gray-600 text-center w-14 leading-tight">{cat.name}</span>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-5 px-4">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-semibold text-gray-900">Featured</h2>
+          <Link href="/category" className="text-xs text-brand-600">See all</Link>
+        </div>
+        {(products as Product[]).length === 0 ? (
+          <div className="text-center py-10 text-gray-400 text-sm">No featured products yet.</div>
+        ) : (
+          <div className="grid grid-cols-2 gap-3">
+            {(products as Product[]).map(product => <ProductCard key={product.id} product={product} />)}
+          </div>
+        )}
+      </div>
+
+      <div className="mx-4 mt-5 mb-4 rounded-2xl bg-gradient-to-r from-brand-900 to-brand-700 p-4 flex justify-between items-center">
+        <div>
+          <p className="text-sm font-medium text-brand-100">Teej sale — up to 40% off</p>
+          <p className="text-xs text-brand-200 mt-0.5">Code <strong className="text-white">TEEJ2025</strong> · Ends Aug 15</p>
+        </div>
+        <div className="bg-gold-400 text-gold-800 text-center rounded-xl px-3 py-2 flex-shrink-0">
+          <p className="text-[10px] font-medium">UP TO</p>
+          <p className="text-2xl font-bold leading-none">40%</p>
+          <p className="text-[10px] font-medium">OFF</p>
+        </div>
+      </div>
     </div>
-  );
+  )
 }
