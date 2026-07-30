@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import ProductCard from '@/components/ProductCard'
@@ -5,6 +6,21 @@ import { WhatsAppButtonIcon } from '@/components/WhatsAppButton'
 import type { Product } from '@/types/database'
 
 export const dynamic = 'force-dynamic'
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
+  const { data: rawCategory } = await supabase.from('categories').select('name, description').eq('slug', slug).single()
+  const category = rawCategory as { name: string; description: string } | null
+  const name = category?.name ?? slug.replace(/-/g, ' ')
+  return {
+    title: `${name} — Buy Online in Nepal`,
+    description: `Shop ${name} online in Nepal. Best prices, cash on delivery. Sajdhaj Nepal.`,
+    openGraph: {
+      title: `${name} — Sajdhaj Nepal`,
+      description: `Browse our ${name} collection. Delivered across Nepal.`,
+    },
+  }
+}
 
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params

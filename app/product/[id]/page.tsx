@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
@@ -6,6 +7,27 @@ import { WhatsAppButtonIcon } from '@/components/WhatsAppButton'
 import type { Product } from '@/types/database'
 
 export const dynamic = 'force-dynamic'
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://sajdhajnepal.com'
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params
+  const { data: product } = await supabase.from('products').select('*, product_images(*)').eq('id', id).single()
+  if (!product) return { title: 'Product not found' }
+  const p = product as Product
+  const primaryImage = p.product_images?.find(i => i.is_primary) ?? p.product_images?.[0]
+  const description = p.description ?? `Buy ${p.name} online in Nepal. Cash on delivery. Sajdhaj Nepal.`
+  return {
+    title: `${p.name} — NPR ${p.price.toLocaleString()}`,
+    description,
+    openGraph: {
+      title: p.name,
+      description,
+      images: primaryImage ? [{ url: primaryImage.url, alt: p.name }] : [],
+    },
+    alternates: { canonical: `${SITE_URL}/product/${id}` },
+  }
+}
 
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -20,8 +42,30 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   const primaryImage = images.find(i => i.is_primary) ?? images[0]
   const discount = p.original_price ? Math.round((1 - p.price / p.original_price) * 100) : null
 
+  const productJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: p.name,
+    description: p.description,
+    image: primaryImage?.url,
+    sku: p.id,
+    offers: {
+      '@type': 'Offer',
+      priceCurrency: 'NPR',
+      price: p.price,
+      availability: p.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      seller: { '@type': 'Organization', name: 'Sajdhaj Nepal' },
+      url: `${SITE_URL}/product/${p.id}`,
+    },
+  }
+
   return (
     <div>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
+
       <div className="flex items-center justify-between px-4 py-3 bg-white sticky top-0 z-10 border-b border-gray-100">
         <div className="flex items-center gap-2 min-w-0">
           <Link href="/" className="text-gray-500 flex-shrink-0">
@@ -70,11 +114,9 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
           ? <p className="text-xs text-green-600 mt-1">{p.stock} in stock</p>
           : <p className="text-xs text-red-500 mt-1">Out of stock</p>}
         {p.description && <p className="text-sm text-gray-600 mt-3 leading-relaxed">{p.description}</p>}
-        <div className="flex items-center gap-2 mt-4 flex-wrap">
-          <span className="text-xs text-gray-400">Pay via</span>
-          {['eSewa', 'Khalti', 'IME Pay', 'COD'].map(m => (
-            <span key={m} className="text-[11px] bg-gray-50 border border-gray-200 rounded px-2 py-0.5 text-gray-600">{m}</span>
-          ))}
+        <div className="flex items-center gap-2 mt-4">
+          <span className="text-xs text-gray-400">Payment</span>
+          <span className="text-[11px] bg-green-50 border border-green-200 rounded px-2 py-0.5 text-green-700 font-medium">Cash on delivery</span>
         </div>
       </div>
 
