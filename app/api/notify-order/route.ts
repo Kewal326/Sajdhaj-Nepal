@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-const TO = process.env.NOTIFY_EMAIL!
-
 type OrderItem = {
   product_name: string
   quantity: number
@@ -52,6 +49,9 @@ export async function POST(req: NextRequest) {
       <p style="font-size:12px;color:#999;margin-top:24px">Call the customer to confirm delivery details.</p>
     </div>
   `
+
+  const resend = new Resend(process.env.RESEND_API_KEY)
+  const TO = process.env.NOTIFY_EMAIL!
 
   try {
     await resend.emails.send({
