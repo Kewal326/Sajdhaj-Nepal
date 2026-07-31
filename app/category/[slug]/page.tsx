@@ -25,7 +25,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
 
-  const { data: category } = await supabase.from('categories').select('*').eq('slug', slug).single()
+  const { data: rawCat } = await supabase.from('categories').select('*').eq('slug', slug).single()
+  const category = rawCat as { id: string; name: string; icon: string } | null
   const { data: products } = category
     ? await supabase.from('products').select('*, product_images(*)').eq('category_id', category.id).eq('is_active', true).order('created_at', { ascending: false })
     : { data: [] }

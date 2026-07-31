@@ -34,7 +34,7 @@ export default function CheckoutPage() {
           address: '',
           payment_method: 'cod',
           total_amount: grandTotal,
-        })
+        } as any)
         .select('id')
         .single()
 
@@ -42,17 +42,17 @@ export default function CheckoutPage() {
 
       const { error: itemsErr } = await supabase.from('order_items').insert(
         items.map(i => ({
-          order_id: order.id,
+          order_id: (order as any).id,
           product_id: i.product.id,
           product_name: i.product.name,
           price: i.product.price,
           quantity: i.quantity,
-        }))
+        })) as any
       )
       if (itemsErr) throw itemsErr
 
       clear()
-      router.push(`/order-success?id=${order.id}`)
+      router.push(`/order-success?id=${(order as any).id}`)
     } catch {
       setError('Something went wrong. Please try again.')
     } finally {

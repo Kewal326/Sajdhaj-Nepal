@@ -36,7 +36,7 @@ export default function CartPage() {
           address: '',
           payment_method: 'cod',
           total_amount: grandTotal,
-        })
+        } as any)
         .select('id')
         .single()
 
@@ -45,12 +45,12 @@ export default function CartPage() {
 
       const { error: itemsErr } = await supabase.from('order_items').insert(
         items.map(i => ({
-          order_id: order.id,
+          order_id: (order as any).id,
           product_id: i.product.id,
           product_name: i.product.name,
           price: i.product.price,
           quantity: i.quantity,
-        }))
+        })) as any
       )
       if (itemsErr) throw new Error(itemsErr.message)
 
@@ -60,7 +60,7 @@ export default function CartPage() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            orderId: order.id,
+            orderId: (order as any).id,
             customerName: name.trim() || 'Guest',
             customerPhone: phone.trim(),
             items: items.map(i => ({
@@ -77,7 +77,7 @@ export default function CartPage() {
       }
 
       clear()
-      router.push(`/order-success?id=${order.id}&notified=${notified}`)
+      router.push(`/order-success?id=${(order as any).id}&notified=${notified}`)
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
     } finally {
