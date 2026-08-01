@@ -2,7 +2,8 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import ProductCard from '@/components/ProductCard'
-import { WhatsAppButtonIcon } from '@/components/WhatsAppButton'
+import CartHeaderButton from '@/components/CartHeaderButton'
+import BackButton from '@/components/BackButton'
 import type { Product } from '@/types/database'
 
 export const dynamic = 'force-dynamic'
@@ -35,16 +36,12 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
     <div>
       <header className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100 sticky top-0 z-10">
         <div className="flex items-center gap-3">
-          <Link href="/category" className="text-gray-500">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-            </svg>
-          </Link>
+          <BackButton />
           <h1 className="text-base font-semibold text-gray-900">
             {category ? `${category.icon} ${category.name}` : slug}
           </h1>
         </div>
-        <WhatsAppButtonIcon />
+        <CartHeaderButton />
       </header>
 
       <div className="p-4">

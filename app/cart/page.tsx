@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useCart } from '@/components/CartProvider'
-import { WhatsAppButtonIcon } from '@/components/WhatsAppButton'
+import CartHeaderButton from '@/components/CartHeaderButton'
+import BackButton from '@/components/BackButton'
 import { supabase } from '@/lib/supabase'
 
 export default function CartPage() {
@@ -87,6 +88,10 @@ export default function CartPage() {
 
   if (items.length === 0 && !loading) {
     return (
+      <div>
+        <header className="flex items-center px-4 py-3 bg-white border-b border-gray-100 sticky top-0 z-10">
+          <BackButton />
+        </header>
       <div className="flex flex-col items-center justify-center h-[70dvh] gap-4 px-8 text-center">
         <span className="text-6xl">🛍️</span>
         <h2 className="text-base font-semibold text-gray-900">Your cart is empty</h2>
@@ -95,14 +100,18 @@ export default function CartPage() {
           Browse products
         </Link>
       </div>
+      </div>
     )
   }
 
   return (
     <div>
       <header className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100 sticky top-0 z-10">
-        <h1 className="text-base font-semibold text-gray-900">Cart ({items.length})</h1>
-        <WhatsAppButtonIcon />
+        <div className="flex items-center gap-2">
+          <BackButton />
+          <h1 className="text-base font-semibold text-gray-900">Cart ({items.length})</h1>
+        </div>
+        <CartHeaderButton />
       </header>
 
       <form onSubmit={handlePlaceOrder} className="p-4 space-y-4">

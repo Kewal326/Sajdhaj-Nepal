@@ -1,9 +1,10 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import AddToCartButton from '@/components/AddToCartButton'
-import { WhatsAppButtonIcon } from '@/components/WhatsAppButton'
+import CartHeaderButton from '@/components/CartHeaderButton'
+import BackButton from '@/components/BackButton'
 import ProductImageGallery from '@/components/ProductImageGallery'
+import ProductStickyBar from '@/components/ProductStickyBar'
 import type { Product } from '@/types/database'
 
 export const dynamic = 'force-dynamic'
@@ -68,14 +69,10 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
       <div className="flex items-center justify-between px-4 py-3 bg-white sticky top-0 z-10 border-b border-gray-100">
         <div className="flex items-center gap-2 min-w-0">
-          <Link href="/" className="text-gray-500 flex-shrink-0">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-            </svg>
-          </Link>
-          <span className="text-sm font-medium text-gray-900 truncate">{p.name}</span>
+          <BackButton />
+          <span className="text-sm font-medium text-gray-500">Product Details</span>
         </div>
-        <WhatsAppButtonIcon />
+        <CartHeaderButton />
       </div>
 
       <ProductImageGallery images={images} name={p.name} badge={p.badge} />
@@ -101,9 +98,9 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         </div>
       </div>
 
-      <div className="px-4 mt-6 pb-4">
-        <AddToCartButton product={p} />
-      </div>
+      <div className="pb-24" />
+
+      <ProductStickyBar product={p} />
     </div>
   )
 }

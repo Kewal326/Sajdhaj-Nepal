@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
-import { WhatsAppButtonIcon } from '@/components/WhatsAppButton'
+import CartHeaderButton from '@/components/CartHeaderButton'
+import BackButton from '@/components/BackButton'
 import type { Category } from '@/types/database'
 
 export const dynamic = 'force-dynamic'
@@ -12,8 +13,11 @@ export default async function CategoriesPage() {
   return (
     <div>
       <header className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100 sticky top-0 z-10">
-        <h1 className="text-base font-semibold text-gray-900">All categories</h1>
-        <WhatsAppButtonIcon />
+        <div className="flex items-center gap-2">
+          <BackButton />
+          <h1 className="text-base font-semibold text-gray-900">All categories</h1>
+        </div>
+        <CartHeaderButton />
       </header>
 
       <div className="grid grid-cols-3 gap-3 p-4">
