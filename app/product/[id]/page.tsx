@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import AddToCartButton from '@/components/AddToCartButton'
 import { WhatsAppButtonIcon } from '@/components/WhatsAppButton'
+import ProductImageGallery from '@/components/ProductImageGallery'
 import type { Product } from '@/types/database'
 
 export const dynamic = 'force-dynamic'
@@ -78,26 +78,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         <WhatsAppButtonIcon />
       </div>
 
-      <div className="relative h-72 bg-brand-50">
-        {primaryImage ? (
-          <Image src={primaryImage.url} alt={p.name} fill className="object-cover" />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-8xl">💍</div>
-        )}
-        {p.badge && (
-          <span className="absolute top-3 left-3 bg-brand-700 text-white text-xs font-medium px-2.5 py-1 rounded">{p.badge}</span>
-        )}
-      </div>
-
-      {images.length > 1 && (
-        <div className="flex gap-2 px-4 mt-2 overflow-x-auto [&::-webkit-scrollbar]:hidden">
-          {images.map(img => (
-            <div key={img.id} className="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 border-gray-100 relative">
-              <Image src={img.url} alt="" fill className="object-cover" />
-            </div>
-          ))}
-        </div>
-      )}
+      <ProductImageGallery images={images} name={p.name} badge={p.badge} />
 
       <div className="px-4 pt-4">
         <h1 className="text-lg font-semibold text-gray-900 leading-snug">{p.name}</h1>

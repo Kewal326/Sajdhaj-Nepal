@@ -42,14 +42,6 @@ export default async function HomePage() {
         <span className="text-6xl mb-1 select-none">🥻</span>
       </div>
 
-      <div className="flex gap-2 px-4 mt-3 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden">
-        {['🚚 Free delivery above NPR 2,000', '✅ 100% authentic', '🔄 7-day returns', '🇳🇵 Nepali support'].map(chip => (
-          <span key={chip} className="flex-shrink-0 text-[11px] text-gray-600 bg-gray-50 border border-gray-100 rounded-full px-3 py-1.5 whitespace-nowrap">
-            {chip}
-          </span>
-        ))}
-      </div>
-
       <div className="mt-5 px-4">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm font-semibold text-gray-900">Categories</h2>
