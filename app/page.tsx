@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import ProductCard from '@/components/ProductCard'
 import CartHeaderButton from '@/components/CartHeaderButton'
+import HeroCarousel from '@/components/HeroCarousel'
 import type { Category, Product } from '@/types/database'
 
 export const dynamic = 'force-dynamic'
@@ -21,26 +22,21 @@ export default async function HomePage() {
   return (
     <div>
       <header className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100 sticky top-0 z-10">
-        <span className="text-lg font-semibold text-brand-700">
-          सजधज <span className="text-brand-400">Nepal</span>
-        </span>
-        <CartHeaderButton />
+        <div className="flex flex-col leading-none">
+          <span className="text-lg font-semibold text-brand-700">सजधज</span>
+          <span className="text-[11px] font-medium text-brand-400 tracking-wide">Nepal</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Link href="/search" className="w-9 h-9 flex items-center justify-center text-gray-600">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+            </svg>
+          </Link>
+          <CartHeaderButton />
+        </div>
       </header>
 
-      <div className="mx-4 mt-4 rounded-2xl bg-gradient-to-br from-brand-900 to-brand-700 p-5 flex justify-between items-end overflow-hidden min-h-36">
-        <div>
-          <span className="inline-block text-[11px] text-brand-100 border border-brand-600 rounded-full px-3 py-0.5 mb-2">
-            ✦ Teej collection 2025
-          </span>
-          <h1 className="text-xl font-semibold text-white leading-tight mb-3">
-            Celebrate in<br />style
-          </h1>
-          <Link href="/category" className="inline-flex items-center gap-1 bg-gold-400 text-gold-800 text-xs font-semibold px-4 py-2 rounded-full">
-            Shop now →
-          </Link>
-        </div>
-        <span className="text-6xl mb-1 select-none">🥻</span>
-      </div>
+      <HeroCarousel />
 
       <div className="mt-5 px-4">
         <div className="flex items-center justify-between mb-3">
