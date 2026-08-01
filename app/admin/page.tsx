@@ -36,6 +36,8 @@ export default function AdminPage() {
     description: '',
     price: '',
     original_price: '',
+    cost_price: '',
+    cost_price_with_expenses: '',
     category_id: '',
     stock: '',
     badge: '',
@@ -85,6 +87,8 @@ export default function AdminPage() {
         description: form.description.trim() || null,
         price: parseFloat(form.price),
         original_price: form.original_price ? parseFloat(form.original_price) : null,
+        cost_price: form.cost_price ? parseFloat(form.cost_price) : null,
+        cost_price_with_expenses: form.cost_price_with_expenses ? parseFloat(form.cost_price_with_expenses) : null,
         category_id: form.category_id || null,
         stock: parseInt(form.stock) || 0,
         badge: form.badge.trim() || null,
@@ -106,7 +110,7 @@ export default function AdminPage() {
       if (imgErr) throw new Error(imgErr.message)
 
       setSuccess(`"${form.name}" added successfully!`)
-      setForm({ name: '', description: '', price: '', original_price: '', category_id: '', stock: '', badge: '', is_featured: false })
+      setForm({ name: '', description: '', price: '', original_price: '', cost_price: '', cost_price_with_expenses: '', category_id: '', stock: '', badge: '', is_featured: false })
       setImages([])
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
@@ -202,6 +206,28 @@ export default function AdminPage() {
                 placeholder="Original (optional)"
                 value={form.original_price}
                 onChange={e => set('original_price', e.target.value)}
+                className={inputClass + ' pl-12'}
+              />
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <div className="flex-1 relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">NPR</span>
+              <input
+                type="number"
+                placeholder="Cost price"
+                value={form.cost_price}
+                onChange={e => set('cost_price', e.target.value)}
+                className={inputClass + ' pl-12'}
+              />
+            </div>
+            <div className="flex-1 relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">NPR</span>
+              <input
+                type="number"
+                placeholder="Cost + expenses"
+                value={form.cost_price_with_expenses}
+                onChange={e => set('cost_price_with_expenses', e.target.value)}
                 className={inputClass + ' pl-12'}
               />
             </div>
