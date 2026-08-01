@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic'
 async function getData() {
   const [{ data: categories }, { data: products }] = await Promise.all([
     supabase.from('categories').select('*').order('sort_order'),
-    supabase.from('products').select('*, product_images(*)').eq('is_featured', true).eq('is_active', true).limit(6),
+    supabase.from('products').select('*, product_images(*)').eq('is_featured', true).eq('is_active', true).order('created_at', { ascending: false }).limit(6),
   ])
   return { categories: categories ?? [], products: products ?? [] }
 }
