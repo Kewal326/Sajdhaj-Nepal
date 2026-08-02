@@ -1,69 +1,101 @@
-import Link from 'next/link'
+'use client'
+
+import { useEffect, useState, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
+import ProductCard from '@/components/ProductCard'
 import CartHeaderButton from '@/components/CartHeaderButton'
-import BackButton from '@/components/BackButton'
-import type { Category } from '@/types/database'
+import type { Category, Product } from '@/types/database'
 
-export const dynamic = 'force-dynamic'
+function CategoriesContent() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [categories, setCategories] = useState<Category[]>([])
+  const [selected, setSelected] = useState<Category | null>(null)
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(false)
 
-export default async function CategoriesPage() {
-  const { data: categories } = await supabase.from('categories').select('*').order('sort_order')
-  const cats = (categories ?? []) as Category[]
-  const [hero, ...rest] = cats
+  useEffect(() => {
+    supabase.from('categories').select('*').order('sort_order').then(({ data }) => {
+      const cats = (data ?? []) as Category[]
+      setCategories(cats)
+      if (!cats.length) return
+      const slug = searchParams.get('cat')
+      const initial = (slug ? cats.find(c => c.slug === slug) : null) ?? cats[0]
+      loadProducts(initial, cats)
+    })
+  }, [])
+
+  async function loadProducts(cat: Category, allCats?: Category[]) {
+    setSelected(cat)
+    router.replace(`/category?cat=${cat.slug}`)
+    setLoading(true)
+    const { data } = await supabase
+      .from('products')
+      .select('*, product_images(*)')
+      .eq('category_id', cat.id)
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+    setProducts((data as Product[]) ?? [])
+    setLoading(false)
+  }
 
   return (
-    <div className="pb-6">
-      <header className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100 sticky top-0 z-10">
-        <div className="flex items-center gap-2">
-          <BackButton />
-          <h1 className="text-base font-semibold text-gray-900">Shop by category</h1>
-        </div>
+    <div className="flex flex-col h-screen">
+      <header className="flex-none flex items-center justify-between px-4 py-2 bg-white border-b border-gray-100 z-10">
+        <h1 className="text-sm font-semibold text-gray-900">{selected?.name ?? 'Categories'}</h1>
         <CartHeaderButton />
       </header>
 
-      <div className="px-4 pt-4 flex flex-col gap-3">
-        {/* Hero card — first category, full width */}
-        {hero && (
-          <CategoryCard cat={hero} height="h-44" textSize="text-xl" />
-        )}
-
-        {/* 2-column grid for the rest */}
-        <div className="grid grid-cols-2 gap-3">
-          {rest.map(cat => (
-            <CategoryCard key={cat.id} cat={cat} height="h-36" textSize="text-base" />
+      <div className="flex flex-1 overflow-hidden">
+        {/* Left sidebar — 15%, icon + name */}
+        <div className="w-[15%] flex-none bg-gray-50 border-r border-gray-100 overflow-y-auto">
+          {categories.map(cat => (
+            <button
+              key={cat.id}
+              onClick={() => loadProducts(cat)}
+              className={`w-full flex flex-col items-center justify-center gap-1 py-3 border-l-2 transition-colors ${
+                selected?.id === cat.id
+                  ? 'border-brand-700 bg-white'
+                  : 'border-transparent'
+              }`}
+            >
+              <div className="w-9 h-9 rounded-full bg-brand-50 overflow-hidden flex items-center justify-center text-lg relative flex-shrink-0">
+                {cat.image_url
+                  ? <Image src={cat.image_url} alt={cat.name} fill className="object-cover" sizes="36px" />
+                  : cat.icon}
+              </div>
+              <span className={`text-[10px] leading-tight text-center px-1 ${selected?.id === cat.id ? 'text-brand-700 font-semibold' : 'text-gray-500'}`}>
+                {cat.name}
+              </span>
+            </button>
           ))}
+        </div>
+
+        {/* Right — products */}
+        <div className="flex-1 overflow-y-auto">
+          {loading ? (
+            <div className="flex justify-center pt-12">
+              <div className="w-5 h-5 border-2 border-brand-700 border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : products.length === 0 ? (
+            <div className="text-center py-16 text-gray-400 text-sm">No products yet.</div>
+          ) : (
+            <div className="grid grid-cols-2 gap-2 p-2 pb-20">
+              {products.map(p => <ProductCard key={p.id} product={p} />)}
+            </div>
+          )}
         </div>
       </div>
     </div>
   )
 }
 
-function CategoryCard({ cat, height, textSize }: { cat: Category; height: string; textSize: string }) {
+export default function CategoriesPage() {
   return (
-    <Link
-      href={`/category/${cat.slug}`}
-      className={`relative rounded-2xl overflow-hidden block ${height} active:opacity-90`}
-    >
-      {cat.image_url ? (
-        <>
-          <Image src={cat.image_url} alt={cat.name} fill className="object-cover" sizes="(max-width: 768px) 50vw, 400px" />
-          {/* Dark overlay only for image cards — ensures text contrast */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
-        </>
-      ) : (
-        <>
-          <div className="absolute inset-0 bg-gradient-to-br from-brand-300 to-brand-600 flex items-center justify-center text-5xl">
-            {cat.icon}
-          </div>
-          {/* Subtle bottom fade for text legibility on gradient */}
-          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/40 to-transparent" />
-        </>
-      )}
-      {/* Text */}
-      <div className="absolute bottom-0 left-0 right-0 p-3">
-        <p className={`${textSize} font-bold text-white leading-tight drop-shadow`}>{cat.name}</p>
-      </div>
-    </Link>
+    <Suspense>
+      <CategoriesContent />
+    </Suspense>
   )
 }
