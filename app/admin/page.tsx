@@ -107,7 +107,7 @@ export default function AdminPage() {
     setError(''); setLoading(true); setSuccess('')
     try {
       const urls = await Promise.all(images.map(img => uploadToCloudinary(img.file)))
-      const { data: product, error: productErr } = await supabase.from('products').insert({
+      const { data: product, error: productErr } = await (supabase.from('products') as any).insert({
         name: form.name.trim(),
         description: form.description.trim() || null,
         price: parseFloat(form.price),
@@ -119,10 +119,10 @@ export default function AdminPage() {
         badge: form.badge.trim() || null,
         is_featured: form.is_featured,
         is_active: true,
-      } as any).select('id').single()
+      }).select('id').single()
       if (productErr) throw new Error(productErr.message)
-      const { error: imgErr } = await supabase.from('product_images').insert(
-        urls.map((url, i) => ({ product_id: (product as any).id, url, is_primary: i === 0, sort_order: i })) as any
+      const { error: imgErr } = await (supabase.from('product_images') as any).insert(
+        urls.map((url, i) => ({ product_id: (product as any).id, url, is_primary: i === 0, sort_order: i }))
       )
       if (imgErr) throw new Error(imgErr.message)
       setSuccess(`"${form.name}" added!`)

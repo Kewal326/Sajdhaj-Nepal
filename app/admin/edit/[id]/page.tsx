@@ -93,7 +93,7 @@ export default function EditProductPage() {
 
     try {
       // Update product fields
-      const { error: updateErr } = await supabase.from('products').update({
+      const { error: updateErr } = await (supabase.from('products') as any).update({
         name: form.name.trim(),
         description: form.description.trim() || null,
         price: parseFloat(form.price),
@@ -105,7 +105,7 @@ export default function EditProductPage() {
         badge: form.badge.trim() || null,
         is_featured: form.is_featured,
         is_active: form.is_active,
-      } as any).eq('id', id)
+      }).eq('id', id)
       if (updateErr) throw new Error(updateErr.message)
 
       // Delete removed images
@@ -118,13 +118,13 @@ export default function EditProductPage() {
       if (newImages.length > 0) {
         const urls = await Promise.all(newImages.map(img => uploadToCloudinary(img.file)))
         const nextOrder = existingImages.length
-        const { error: imgErr } = await supabase.from('product_images').insert(
+        const { error: imgErr } = await (supabase.from('product_images') as any).insert(
           urls.map((url, i) => ({
             product_id: id,
             url,
             is_primary: existingImages.length === 0 && i === 0,
             sort_order: nextOrder + i,
-          })) as any
+          }))
         )
         if (imgErr) throw new Error(imgErr.message)
       }
