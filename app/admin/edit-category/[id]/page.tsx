@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
+const db = supabase as any
 
 const CLOUD_NAME = 'qzxz6chw'
 const UPLOAD_PRESET = 'prauhhjs'
@@ -36,7 +37,7 @@ export default function EditCategoryPage() {
 
   useEffect(() => {
     if (isNew) return
-    supabase.from('categories').select('*').eq('id', id).single().then(({ data }) => {
+    db.from('categories').select('*').eq('id', id).single().then(({ data }: { data: any }) => {
       if (data) {
         const c = data as any
         setName(c.name ?? '')
@@ -57,12 +58,12 @@ export default function EditCategoryPage() {
       const payload = { name: name.trim(), slug: autoSlug(name), image_url, icon: null } as any
 
       if (isNew) {
-        const { data: cats } = await supabase.from('categories').select('sort_order').order('sort_order', { ascending: false }).limit(1)
+        const { data: cats } = await db.from('categories').select('sort_order').order('sort_order', { ascending: false }).limit(1)
         const nextOrder = ((cats?.[0] as any)?.sort_order ?? -1) + 1
-        const { error: e } = await (supabase.from('categories') as any).insert({ ...payload, sort_order: nextOrder })
+        const { error: e } = await db.from('categories').insert({ ...payload, sort_order: nextOrder })
         if (e) throw new Error(e.message)
       } else {
-        const { error: e } = await (supabase.from('categories') as any).update(payload).eq('id', id)
+        const { error: e } = await db.from('categories').update(payload).eq('id', id)
         if (e) throw new Error(e.message)
       }
 
@@ -75,7 +76,7 @@ export default function EditCategoryPage() {
 
   async function handleDelete() {
     if (!window.confirm(`Delete "${name}"? Products in this category will lose their category. This cannot be undone.`)) return
-    const { error } = await supabase.from('categories').delete().eq('id', id)
+    const { error } = await db.from('categories').delete().eq('id', id)
     if (error) { alert(error.message); return }
     router.push('/admin')
   }

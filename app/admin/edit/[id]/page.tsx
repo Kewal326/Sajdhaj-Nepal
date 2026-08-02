@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
+const db = supabase as any
 import type { Category } from '@/types/database'
 
 const CLOUD_NAME = 'qzxz6chw'
@@ -43,8 +44,8 @@ export default function EditProductPage() {
 
   useEffect(() => {
     Promise.all([
-      supabase.from('categories').select('*').order('sort_order'),
-      supabase.from('products').select('*, product_images(*)').eq('id', id).single(),
+      db.from('categories').select('*').order('sort_order'),
+      db.from('products').select('*, product_images(*)').eq('id', id).single(),
     ]).then(([{ data: cats }, { data: product }]) => {
       setCategories((cats ?? []) as Category[])
       if (product) {
@@ -93,7 +94,7 @@ export default function EditProductPage() {
 
     try {
       // Update product fields
-      const { error: updateErr } = await (supabase.from('products') as any).update({
+      const { error: updateErr } = await db.from('products').update({
         name: form.name.trim(),
         description: form.description.trim() || null,
         price: parseFloat(form.price),
@@ -110,7 +111,7 @@ export default function EditProductPage() {
 
       // Delete removed images
       if (removedImageIds.length > 0) {
-        const { error: delErr } = await supabase.from('product_images').delete().in('id', removedImageIds)
+        const { error: delErr } = await db.from('product_images').delete().in('id', removedImageIds)
         if (delErr) throw new Error(delErr.message)
       }
 
@@ -118,7 +119,7 @@ export default function EditProductPage() {
       if (newImages.length > 0) {
         const urls = await Promise.all(newImages.map(img => uploadToCloudinary(img.file)))
         const nextOrder = existingImages.length
-        const { error: imgErr } = await (supabase.from('product_images') as any).insert(
+        const { error: imgErr } = await db.from('product_images').insert(
           urls.map((url, i) => ({
             product_id: id,
             url,

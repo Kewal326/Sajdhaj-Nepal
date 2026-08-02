@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
+const db = supabase as any
 import type { Category } from '@/types/database'
 
 const CLOUD_NAME = 'qzxz6chw'
@@ -47,22 +48,22 @@ export default function AdminPage() {
   const [loadingCats, setLoadingCats] = useState(false)
 
   useEffect(() => {
-    supabase.from('categories').select('*').order('sort_order')
-      .then(({ data }) => setCategories((data ?? []) as Category[]))
+    db.from('categories').select('*').order('sort_order')
+      .then(({ data }: { data: any }) => setCategories((data ?? []) as Category[]))
   }, [])
 
   useEffect(() => {
     if (tab === 'products') {
       setLoadingProducts(true)
-      supabase.from('products')
+      db.from('products')
         .select('id, name, price, is_active, product_images(url, is_primary)')
         .order('created_at', { ascending: false })
-        .then(({ data }) => { setProducts((data ?? []) as Product[]); setLoadingProducts(false) })
+        .then(({ data }: { data: any }) => { setProducts((data ?? []) as Product[]); setLoadingProducts(false) })
     }
     if (tab === 'categories') {
       setLoadingCats(true)
-      supabase.from('categories').select('*').order('sort_order')
-        .then(({ data }) => { setCatList((data ?? []) as Category[]); setLoadingCats(false) })
+      db.from('categories').select('*').order('sort_order')
+        .then(({ data }: { data: any }) => { setCatList((data ?? []) as Category[]); setLoadingCats(false) })
     }
   }, [tab])
 
@@ -73,13 +74,13 @@ export default function AdminPage() {
     const next = [...catList]
     ;[next[index], next[target]] = [next[target], next[index]]
     setCatList(next)
-    await Promise.all(next.map((c, i) => supabase.from('categories').update({ sort_order: i } as any).eq('id', c.id)))
+    await Promise.all(next.map((c, i) => db.from('categories').update({ sort_order: i } as any).eq('id', c.id)))
   }
 
   // ── Category delete ──
   async function deleteCat(cat: Category) {
     if (!window.confirm(`Delete "${cat.name}"? Products in this category will lose their category. This cannot be undone.`)) return
-    const { error } = await supabase.from('categories').delete().eq('id', cat.id)
+    const { error } = await db.from('categories').delete().eq('id', cat.id)
     if (error) { alert(error.message); return }
     setCatList(prev => prev.filter(c => c.id !== cat.id))
     setCategories(prev => prev.filter(c => c.id !== cat.id))
@@ -88,8 +89,8 @@ export default function AdminPage() {
   // ── Product delete ──
   async function deleteProduct(p: Product) {
     if (!window.confirm(`Delete "${p.name}"? This cannot be undone.`)) return
-    await supabase.from('product_images').delete().eq('product_id', p.id)
-    const { error } = await supabase.from('products').delete().eq('id', p.id)
+    await db.from('product_images').delete().eq('product_id', p.id)
+    const { error } = await db.from('products').delete().eq('id', p.id)
     if (error) { alert(error.message); return }
     setProducts(prev => prev.filter(x => x.id !== p.id))
   }
@@ -107,7 +108,7 @@ export default function AdminPage() {
     setError(''); setLoading(true); setSuccess('')
     try {
       const urls = await Promise.all(images.map(img => uploadToCloudinary(img.file)))
-      const { data: product, error: productErr } = await (supabase.from('products') as any).insert({
+      const { data: product, error: productErr } = await db.from('products').insert({
         name: form.name.trim(),
         description: form.description.trim() || null,
         price: parseFloat(form.price),
@@ -121,7 +122,7 @@ export default function AdminPage() {
         is_active: true,
       }).select('id').single()
       if (productErr) throw new Error(productErr.message)
-      const { error: imgErr } = await (supabase.from('product_images') as any).insert(
+      const { error: imgErr } = await db.from('product_images').insert(
         urls.map((url, i) => ({ product_id: (product as any).id, url, is_primary: i === 0, sort_order: i }))
       )
       if (imgErr) throw new Error(imgErr.message)
