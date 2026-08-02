@@ -59,10 +59,10 @@ export default function EditCategoryPage() {
       if (isNew) {
         const { data: cats } = await supabase.from('categories').select('sort_order').order('sort_order', { ascending: false }).limit(1)
         const nextOrder = ((cats?.[0] as any)?.sort_order ?? -1) + 1
-        const { error: e } = await supabase.from('categories').insert({ ...payload, sort_order: nextOrder })
+        const { error: e } = await (supabase.from('categories') as any).insert({ ...payload, sort_order: nextOrder })
         if (e) throw new Error(e.message)
       } else {
-        const { error: e } = await supabase.from('categories').update(payload).eq('id', id)
+        const { error: e } = await (supabase.from('categories') as any).update(payload).eq('id', id)
         if (e) throw new Error(e.message)
       }
 
