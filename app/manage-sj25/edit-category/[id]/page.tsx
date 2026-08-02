@@ -67,7 +67,7 @@ export default function EditCategoryPage() {
         if (e) throw new Error(e.message)
       }
 
-      router.push('/admin')
+      router.push('/manage-sj25')
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
       setSaving(false)
@@ -78,7 +78,7 @@ export default function EditCategoryPage() {
     if (!window.confirm(`Delete "${name}"? Products in this category will lose their category. This cannot be undone.`)) return
     const { error } = await db.from('categories').delete().eq('id', id)
     if (error) { alert(error.message); return }
-    router.push('/admin')
+    router.push('/manage-sj25')
   }
 
   if (loading) {
