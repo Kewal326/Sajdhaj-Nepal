@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
@@ -32,7 +32,6 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState('')
   const [error, setError] = useState('')
-  const fileRef = useRef<HTMLInputElement>(null)
   const [form, setForm] = useState({
     name: '', description: '', price: '', original_price: '',
     cost_price: '', cost_price_with_expenses: '', category_id: '',
@@ -165,12 +164,12 @@ export default function AdminPage() {
                   <button type="button" onClick={() => setImages(prev => prev.filter((_, j) => j !== i))} className="absolute top-0.5 right-0.5 bg-black/60 rounded-full w-4 h-4 flex items-center justify-center text-white text-[10px]">×</button>
                 </div>
               ))}
-              <button type="button" onClick={() => fileRef.current?.click()} className="w-20 h-20 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center gap-1 text-gray-400">
-                <span className="text-2xl leading-none">+</span>
-                <span className="text-[10px]">Add photo</span>
-              </button>
+              <label className="relative w-20 h-20 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center gap-1 text-gray-400 cursor-pointer overflow-hidden">
+                <span className="text-2xl leading-none pointer-events-none">+</span>
+                <span className="text-[10px] pointer-events-none">Add photo</span>
+                <input type="file" accept="image/*" multiple className="absolute inset-0 opacity-0 cursor-pointer" onChange={e => { const files = Array.from(e.target.files ?? []); setImages(prev => [...prev, ...files.map(f => ({ file: f, preview: URL.createObjectURL(f) }))]); e.target.value = '' }} />
+              </label>
             </div>
-            <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={e => { setImages(prev => [...prev, ...Array.from(e.target.files ?? []).map(f => ({ file: f, preview: URL.createObjectURL(f) }))]); e.target.value = '' }} />
           </div>
 
           <div className="bg-white rounded-2xl border border-gray-100 p-4 space-y-3">
@@ -242,7 +241,7 @@ export default function AdminPage() {
                   <p className="text-xs text-brand-700 mt-0.5">NPR {p.price.toLocaleString()}</p>
                   {!p.is_active && <span className="text-[10px] text-red-500">Hidden</span>}
                 </div>
-                <button onClick={() => router.push(`/admin/edit/${p.id}`)} className="flex-shrink-0 bg-gray-100 text-gray-700 text-xs font-medium px-3 py-2 rounded-xl">Edit</button>
+                <button onClick={() => router.push(`/manage-sj25/edit/${p.id}`)} className="flex-shrink-0 bg-gray-100 text-gray-700 text-xs font-medium px-3 py-2 rounded-xl">Edit</button>
                 <button onClick={() => deleteProduct(p)} className="flex-shrink-0 bg-red-50 text-red-500 text-xs font-medium px-3 py-2 rounded-xl">Delete</button>
               </div>
             )
@@ -253,7 +252,7 @@ export default function AdminPage() {
       {/* ── CATEGORIES TAB ── */}
       {tab === 'categories' && (
         <div className="p-4 space-y-3 pb-10">
-          <button onClick={() => router.push('/admin/edit-category/new')} className="w-full bg-brand-700 text-white text-sm font-semibold py-3 rounded-2xl">
+          <button onClick={() => router.push('/manage-sj25/edit-category/new')} className="w-full bg-brand-700 text-white text-sm font-semibold py-3 rounded-2xl">
             + Add category
           </button>
           {loadingCats ? (
@@ -269,7 +268,7 @@ export default function AdminPage() {
                 {cat.image_url && <Image src={cat.image_url} alt={cat.name} fill className="object-cover" sizes="40px" />}
               </div>
               <p className="flex-1 text-sm font-medium text-gray-900 truncate">{cat.name}</p>
-              <button onClick={() => router.push(`/admin/edit-category/${cat.id}`)} className="flex-shrink-0 bg-gray-100 text-gray-700 text-xs font-medium px-3 py-2 rounded-xl">Edit</button>
+              <button onClick={() => router.push(`/manage-sj25/edit-category/${cat.id}`)} className="flex-shrink-0 bg-gray-100 text-gray-700 text-xs font-medium px-3 py-2 rounded-xl">Edit</button>
               <button onClick={() => deleteCat(cat)} className="flex-shrink-0 bg-red-50 text-red-500 text-xs font-medium px-3 py-2 rounded-xl">Delete</button>
             </div>
           ))}

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
@@ -33,7 +33,6 @@ export default function EditCategoryPage() {
   const [loading, setLoading] = useState(!isNew)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
-  const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (isNew) return
@@ -115,19 +114,19 @@ export default function EditCategoryPage() {
                 : <div className="w-full h-full flex items-center justify-center text-gray-300 text-3xl">📷</div>}
             </div>
             <div className="flex flex-col gap-2">
-              <button type="button" onClick={() => fileRef.current?.click()} className="text-sm bg-gray-100 text-gray-700 px-4 py-2 rounded-xl font-medium">
+              <label className="text-sm bg-gray-100 text-gray-700 px-4 py-2 rounded-xl font-medium cursor-pointer">
                 {imageFile || existingImageUrl ? 'Change image' : 'Upload image'}
-              </button>
+                <input type="file" accept="image/*" className="absolute opacity-0 w-0 h-0" onChange={e => {
+                  const file = e.target.files?.[0]
+                  if (file) setImageFile({ file, preview: URL.createObjectURL(file) })
+                  e.target.value = ''
+                }} />
+              </label>
               {(imageFile || existingImageUrl) && (
                 <button type="button" onClick={() => { setImageFile(null); setExistingImageUrl(null) }} className="text-xs text-red-400 text-left">Remove</button>
               )}
             </div>
           </div>
-          <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={e => {
-            const file = e.target.files?.[0]
-            if (file) setImageFile({ file, preview: URL.createObjectURL(file) })
-            e.target.value = ''
-          }} />
         </div>
 
         {/* Name */}

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
@@ -34,8 +34,6 @@ export default function EditProductPage() {
   const [saving, setSaving] = useState(false)
   const [success, setSuccess] = useState('')
   const [error, setError] = useState('')
-  const fileRef = useRef<HTMLInputElement>(null)
-
   const [form, setForm] = useState({
     name: '', description: '', price: '', original_price: '',
     cost_price: '', cost_price_with_expenses: '', category_id: '',
@@ -182,12 +180,12 @@ export default function EditProductPage() {
                 <button type="button" onClick={() => setNewImages(prev => prev.filter((_, j) => j !== i))} className="absolute top-0.5 right-0.5 bg-black/60 rounded-full w-4 h-4 flex items-center justify-center text-white text-[10px]">×</button>
               </div>
             ))}
-            <button type="button" onClick={() => fileRef.current?.click()} className="w-20 h-20 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center gap-1 text-gray-400">
+            <label className="w-20 h-20 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center gap-1 text-gray-400 cursor-pointer">
               <span className="text-2xl leading-none">+</span>
               <span className="text-[10px]">Add photo</span>
-            </button>
+              <input type="file" accept="image/*" multiple className="absolute opacity-0 w-0 h-0" onChange={pickImages} />
+            </label>
           </div>
-          <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={pickImages} />
         </div>
 
         {/* Basic info */}
